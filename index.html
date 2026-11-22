@@ -7,7 +7,7 @@
 :root{--bg:#080d18;--panel:#111a2b;--panel2:#0b1423;--line:#293a55;--text:#edf4ff;--muted:#9aabc5;--mint:#62e7cc;--violet:#a99aff;--amber:#ffc979;--red:#ff829d}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -15%,#30335e 0,transparent 38%),var(--bg);color:var(--text);font:14px/1.5 Inter,system-ui,-apple-system,Segoe UI,sans-serif}header{height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(14px,4vw,48px);border-bottom:1px solid #202d44;background:#080d18ed;position:sticky;top:0;z-index:5;backdrop-filter:blur(14px)}.brand{display:flex;align-items:center;gap:10px;font-weight:850;font-size:19px}.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--mint),var(--violet));display:grid;place-items:center;color:#09131e;font-weight:950}.tag{font-size:10px;color:var(--mint);border:1px solid #317b68;padding:3px 7px;border-radius:20px}main{max-width:1240px;margin:auto;padding:30px 18px 65px}.hero{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:22px}.eyebrow{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mint);font-weight:800}.hero h1{font-size:clamp(29px,4vw,44px);line-height:1.08;letter-spacing:-1.5px;margin:7px 0}.hero p{color:var(--muted);max-width:680px;margin:0}.hero-note{border:1px solid #4b426f;background:#211e3c;color:#c8c0ff;border-radius:11px;padding:9px 12px;font-size:11px}.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.8fr);gap:16px}.stack{display:grid;gap:16px;align-content:start}.panel{background:linear-gradient(155deg,#141f33,#0f1727);border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 16px 45px #0002}.panel h2{font-size:15px;margin:0 0 12px}.muted{color:var(--muted)}.small{font-size:11px;color:var(--muted);margin-top:8px}.sourcebox{background:#0a1322;border:1px dashed #405675;border-radius:12px;padding:15px}.sourcebox input[type=file]{max-width:100%;color:#aab9d0}.preview{margin-top:12px;min-height:170px;background:#050a12;border:1px solid #263650;border-radius:11px;display:grid;place-items:center;overflow:hidden}.preview video{max-width:100%;max-height:380px}.empty{text-align:center;padding:25px;color:#8294af}.empty b{display:block;color:#bdc9dc;margin:6px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}button{border:0;border-radius:9px;padding:10px 13px;font-weight:750;cursor:pointer;background:linear-gradient(110deg,var(--mint),#a6efd0);color:#08151d}button:disabled{opacity:.4;cursor:not-allowed}.ghost{background:#202d44;color:#e3ebfa;border:1px solid #3a4b67}.warn{background:#352b20;color:#ffd89c;border:1px solid #705735}input,select,textarea{background:#080f1c;border:1px solid #34445e;border-radius:9px;color:var(--text);padding:10px;font:inherit;min-width:0;width:100%}input[type=checkbox]{width:auto;accent-color:#62e7cc}label{display:block;font-size:11px;color:#aab9d0;margin-bottom:5px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.field{min-width:0}.field.full{grid-column:1/-1}.check{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#c4d1e5;margin-top:10px}.status{font-size:12px;color:#a9bad2;min-height:18px;margin-top:9px;overflow-wrap:anywhere}.notice{font-size:11px;color:#a8b7ce;background:#0a1423;border:1px solid #2b3c56;padding:10px;border-radius:9px;margin-top:10px}.notice.warning{border-color:#765c35;color:#f4d7a4;background:#2a2118}.progress{height:5px;background:#2a3851;border-radius:9px;overflow:hidden;display:none;margin-top:8px}.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--violet))}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.metric{background:#0a1423;border:1px solid #263751;border-radius:9px;padding:9px}.metric b{font-size:16px;display:block}.metric span{font-size:10px;color:var(--muted)}.candidate{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center;padding:11px 0;border-bottom:1px solid #26344b}.candidate:last-child{border:0}.candidate strong{font-size:13px}.candidate small{display:block;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}.score{font-size:10px;color:var(--mint);background:#102c2a;padding:5px 7px;border-radius:8px;white-space:nowrap}.candidate button{padding:7px 9px;font-size:11px}.setting{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #27364e}.setting:last-child{border:0}.setting small{display:block;color:var(--muted);font-size:11px}.setting select{max-width:150px}.wide{width:100%;margin-top:10px;padding:12px}.rights-item{border:1px solid #2b3b55;background:#0a1423;border-radius:10px;padding:10px;margin-top:8px}.rights-item small{display:block;color:var(--muted);font-size:11px;margin-top:4px;overflow-wrap:anywhere}.pill{font-size:10px;padding:4px 7px;border-radius:20px;background:#263247;color:#c6d3e7}.pill.approved{background:#12352e;color:#8ee7c9}.pill.pending{background:#3b301d;color:#ffd58d}.pill.restricted{background:#3b202b;color:#ff9db0}.profile-row{display:flex;gap:8px;align-items:center}.profile-row select{flex:1}footer{text-align:center;color:#71839f;font-size:11px;margin-top:25px}@media(max-width:850px){.grid{grid-template-columns:1fr}.hero{display:block}.hero-note{display:inline-block;margin-top:12px}}@media(max-width:520px){main{padding:22px 12px 50px}.panel{padding:13px}.fields{grid-template-columns:1fr 1fr}.field.full{grid-column:1/-1}.candidate{grid-template-columns:1fr}.candidate>div:last-child{display:flex;justify-content:flex-start}.hero h1{font-size:32px}}
 </style></head>
 <body>
-<header><div class="brand"><div class="logo">▶</div>ClipForge <span class="tag">V6 · YOUTUBE CONNECT</span></div><span class="tag">LOCAL-FIRST · CAMPAIGN READY</span></header>
+<header><div class="brand"><div class="logo">▶</div>ClipForge <span class="tag">V6 · YOUTUBE CONNECT</span></div><span class="tag">LOCAL-FIRST · CAMPAIGN READY</span></header><div class="notice warning" style="margin:12px 0">URL clipping needs a configured backend. The YouTube preview is not the video file, and API credentials must never be placed in this public HTML.</div>
 <main>
 <section class="hero"><div><div class="eyebrow">Creator clipping studio</div><h1>Find the moment.<br><span style="background:linear-gradient(90deg,var(--mint),var(--violet));background-clip:text;color:transparent">Make it a clip.</span></h1><p>Paste a YouTube link to preview a video or livestream, then import an authorised recording. ClipForge finds promising 30–60 second moments, applies campaign requirements, checks every clip and exports vertical MP4s.</p></div><div class="hero-note">No account · No paid API required</div></section>
 <div class="grid"><div class="stack">
@@ -28,6 +28,32 @@
 <div class="notice warning">Setup: enable YouTube Data API v3 in Google Cloud, create an OAuth Web application client, and add the exact HTTPS site origin (or http://localhost for local development) to authorised JavaScript origins. Client ID and API key are identifiers, not passwords. OAuth access token stays in memory and is cleared on refresh/disconnect. Only connect a channel you own or are authorised to manage.</div>
 </div>
 <div class="field" style="margin-top:12px"><label for="mediaUrl">Creator-provided direct recording / media URL</label><input id="mediaUrl" type="url" inputmode="url" placeholder="https://creator-hosted-site.com/recording.mp4"></div><div class="actions"><button id="importMediaUrl" class="ghost">Import authorised media URL</button></div><div class="small">Direct media import works only when the host permits browser access (CORS) and the URL serves a video file. YouTube watch/live URLs are not direct media URLs.</div></div>
+
+<div class="sourcebox" id="urlClipPanel" style="margin-top:12px">
+  <b>AI clip directly from an authorised source URL</b>
+  <p class="muted" style="font-size:12px;margin:4px 0 10px">
+    Submit a public source URL to the configured clipping provider. This requires a server-side provider API key; it is not the same as YouTube preview.
+  </p>
+  <div class="fields" style="margin-top:0">
+    <div class="field"><label for="urlClipDuration">Clip length</label>
+      <select id="urlClipDuration"><option value="30,60">30–60 seconds</option><option value="30,45">30–45 seconds</option><option value="45,60">45–60 seconds</option></select>
+    </div>
+    <div class="field"><label for="urlClipGenre">Content type</label>
+      <select id="urlClipGenre"><option value="Auto">Auto</option><option value="Gaming">Gaming</option><option value="Podcast">Podcast / interview</option><option value="Vlog">Vlog / entertainment</option></select>
+    </div>
+    <div class="field full"><label for="urlClipPrompt">Highlight instructions (optional)</label>
+      <input id="urlClipPrompt" placeholder="e.g. Find funny reactions, clutch plays and surprising moments">
+    </div>
+  </div>
+  <label class="check"><input id="urlClipRights" type="checkbox"> I have permission to submit this source to the configured processing provider and create clips for my intended platforms.</label>
+  <div class="field full" style="margin-top:10px"><label for="cfApiBaseInput">Clipping backend URL</label><input id="cfApiBaseInput" type="url" placeholder="https://your-worker.workers.dev/api"><div class="small">Enter the deployed Worker URL ending in /api, then save it. Leave blank only if your backend is hosted on the same origin.</div><button id="cfSaveApiBase" class="ghost" type="button">Save backend address</button></div>
+  <div class="actions">
+    <button id="submitUrlClip">✦ Analyse URL & create clips</button>
+    <button id="refreshUrlClips" class="ghost" disabled>Refresh results</button>
+  </div>
+  <div class="status" id="urlClipStatus">Provider not connected. Configure the backend before submitting a URL.</div>
+  <div id="urlClipResults" class="notice" hidden></div>
+</div>
 <div class="sourcebox"><b>Or choose a local video file</b><p class="muted" style="font-size:12px;margin:4px 0 10px">MP4, MOV or WebM supported by your browser. For livestream campaigns, use a creator-provided or campaign-authorised recording/export.</p><input id="fileInput" type="file" accept="video/*"><div class="small">YouTube links and channel connection provide preview and metadata only. To create clips, import the matching creator-provided recording or direct media URL that you are authorised to edit. No ripping, DRM bypass or protected-stream capture. Large files need sufficient device memory.</div></div><div id="preview" class="preview"><div class="empty"><b>Your video preview appears here</b><small>Choose a video to begin.</small></div></div><div class="metrics"><div class="metric"><b id="durationMetric">—</b><span>Video length</span></div><div class="metric"><b id="candidateMetric">0</b><span>Clips found</span></div><div class="metric"><b id="stateMetric">Ready</b><span>Status</span></div></div><div class="actions"><button id="analyzeBtn" disabled>✦ Find clips with AI</button><button id="clearBtn" class="ghost">Clear video</button></div><div class="status" id="sourceStatus">Waiting for a video.</div><div class="status" id="aiStatus">AI model loads only when you start analysis. First use downloads model weights.</div><div class="progress" id="progress"><div id="bar"></div></div><div id="transcriptBox" class="notice" hidden style="max-height:200px;overflow:auto;white-space:pre-wrap"></div></section>
 <section class="panel"><h2>② Review AI-selected moments</h2><p class="muted" style="font-size:12px;margin:-5px 0 8px">Whisper transcribes the video; local scoring highlights likely hooks, useful insights, reactions and payoffs. Review each moment before publishing.</p><div id="candidates"><div class="empty">Run AI analysis to find clip-worthy moments.</div></div><div class="notice">ClipForge prioritises quality over quantity. It will not invent extra clips to meet a target count.</div></section>
 <section class="panel"><h2>③ Quick trim</h2><div class="fields"><div class="field"><label for="trimStart">Start (seconds)</label><input id="trimStart" type="number" min="0" step="0.1" value="0"></div><div class="field"><label for="trimEnd">End (seconds)</label><input id="trimEnd" type="number" min="0" step="0.1" value="30"></div></div><div class="field" style="margin-top:10px"><label for="clipTitle">Clip title / hook (optional)</label><input id="clipTitle" maxlength="90" placeholder="e.g. TRUST ME BRO gone wrong"></div><div class="actions"><button id="applyTrim" class="ghost">Apply trim</button><button id="removeClip" class="warn">Remove selected</button></div><div id="trimStatus" class="status">Select a suggested moment to adjust it.</div></section>
@@ -163,4 +189,68 @@ $('exportAll').onclick=async()=>{if(!allPreflight())return;const checks=candidat
 $('copyCaption').onclick=async()=>{try{await navigator.clipboard.writeText($('postCaption').value);say('exportStatus','Campaign caption copied.')}catch{say('exportStatus','Clipboard unavailable. Select and copy the caption manually.')}};
 $('campaignEnabled').onchange=()=>{$('exportAll').disabled=!file||!candidates.length;say('campaignStatus',$('campaignEnabled').checked?'Campaign profile will be applied to exports.':'Campaign profile disabled; general rights check still applies.')};
 loadRights();refreshProfiles();$('rightsBasis').onchange();
+
+// ClipForge URL-to-AI provider workflow (backend keeps API credentials private).
+let CF_API_BASE = localStorage.getItem('clipforge_api_base') || '/api';
+if($('cfApiBaseInput') && CF_API_BASE==='/api') $('cfApiBaseInput').value='';
+if($('cfSaveApiBase')) $('cfSaveApiBase').addEventListener('click',()=>{const v=$('cfApiBaseInput').value.trim().replace(/\/$/,'');CF_API_BASE=v||'/api';localStorage.setItem('clipforge_api_base',CF_API_BASE);cfUrlStatus('Backend address saved in this browser: '+CF_API_BASE);});
+let cfUrlProjectId = null;
+function cfUrlStatus(message){ const el=$('urlClipStatus'); if(el) el.textContent=message; }
+function cfUrlEscape(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function cfExtractYouTubeId(raw){
+  try { const u=new URL(raw); if(['youtube.com','www.youtube.com','m.youtube.com','youtu.be','www.youtu.be'].includes(u.hostname)){
+    if(u.hostname.includes('youtu.be')) return u.pathname.split('/').filter(Boolean)[0]||null;
+    return u.searchParams.get('v') || (u.pathname.match(/\/(?:shorts|live|embed)\/([^/?]+)/)||[])[1] || null;
+  }} catch(e){} return null;
+}
+async function cfSubmitUrlClip(){
+  const source=$('youtubeUrl')?.value.trim();
+  if(!source){cfUrlStatus('Paste a source URL first.');return}
+  if(!$('urlClipRights')?.checked){cfUrlStatus('Confirm that you have the necessary rights and provider-submission permission first.');return}
+  const yt=cfExtractYouTubeId(source);
+  if(!yt && !/^https:\/\/\S+/i.test(source)){cfUrlStatus('Enter a valid HTTPS source URL.');return}
+  const [minDur,maxDur]=($('urlClipDuration').value||'30,60').split(',').map(Number);
+  $('submitUrlClip').disabled=true; cfUrlStatus('Submitting the source to the configured clipping provider…');
+  $('urlClipResults').hidden=true;
+  try{
+    const res=await fetch(CF_API_BASE+'/clip-projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      videoUrl:source,
+      curationPref:{clipDurations:[[minDur,maxDur]],genre:$('urlClipGenre').value,skipCurate:false,customPrompt:$('urlClipPrompt').value.trim()||undefined},
+      importPref:{sourceLang:'auto'},
+      renderPref:{layoutAspectRatio:'portrait'}
+    })});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error||data.message||`Provider request failed (${res.status})`);
+    cfUrlProjectId=data.projectId||data.id||data.project?.id||null;
+    if(!cfUrlProjectId) throw new Error('Provider accepted the request but returned no project ID. Check backend/provider response logs.');
+    $('refreshUrlClips').disabled=false;
+    cfUrlStatus('Project submitted successfully. Project ID: '+cfUrlProjectId+'. Tap Refresh results after processing finishes.');
+    await cfRefreshUrlClips();
+  }catch(e){cfUrlStatus('Could not submit URL: '+e.message)}
+  finally{$('submitUrlClip').disabled=false}
+}
+async function cfRefreshUrlClips(){
+  if(!cfUrlProjectId){cfUrlStatus('Submit a project first.');return}
+  $('refreshUrlClips').disabled=true; cfUrlStatus('Checking project clips…');
+  try{
+    const res=await fetch(CF_API_BASE+'/exportable-clips?projectId='+encodeURIComponent(cfUrlProjectId));
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error||data.message||`Could not fetch clips (${res.status})`);
+    const rows=data.clips||data.items||data.data||[];
+    const box=$('urlClipResults'); box.hidden=false;
+    if(!rows.length){box.textContent='No exportable clips returned yet. The project may still be processing; try Refresh results again in a little while.';cfUrlStatus('Project exists; no clips are ready yet.');return}
+    box.innerHTML='<b>Provider results</b><div style="margin-top:8px">'+rows.map((c,i)=>{
+      const title=cfUrlEscape(c.title||c.name||('Clip '+(i+1)));
+      const url=c.previewUrl||c.preview_url||c.url||c.downloadUrl||c.download_url;
+      const start=c.startTime??c.start??c.startSec;
+      const end=c.endTime??c.end??c.endSec;
+      return `<div style="padding:8px 0;border-top:1px solid var(--line)"><b>${title}</b><div class="small">${start!=null?`${start}s`:''}${end!=null?` – ${end}s`:''}</div>${url?`<a href="${cfUrlEscape(url)}" target="_blank" rel="noopener">Open provider clip</a>`:'<span class="small">Preview/download link not present in response.</span>'}</div>`;
+    }).join('')+'</div>';
+    cfUrlStatus(`${rows.length} clip result(s) received. Check each result and use the provider's export/download option for the final MP4.`);
+  }catch(e){cfUrlStatus('Could not refresh results: '+e.message)}
+  finally{$('refreshUrlClips').disabled=false}
+}
+if($('submitUrlClip')) $('submitUrlClip').addEventListener('click',cfSubmitUrlClip);
+if($('refreshUrlClips')) $('refreshUrlClips').addEventListener('click',cfRefreshUrlClips);
+
 </script></body></html>
