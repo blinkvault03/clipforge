@@ -1,25 +1,30 @@
+
 /**
- * ClipForge Worker V6.4 (Phase 1) — provider-independent API layer.
- * Legacy V6.2 routes are preserved and now run through the provider registry:
- *   GET  /api/health
- *   POST /api/clip-projects       (V6.2 body shape -> ClipJob -> provider.submit)
- *   GET  /api/exportable-clips    (provider.results, raw passthrough)
- * Secrets: OPUS_API_KEY (+ optional OPUS_ORG_ID). Var: ALLOWED_ORIGINS (comma list; unset = "*").
- * Deploy the WHOLE folder (worker.js + src/), not just this file.
+ * ClipForge Worker V6.5
+ * Provider selection is explicit and environment-driven.
+ * No paid or third-party provider is selected implicitly.
  */
+
 import { createDefaultRegistry } from "./src/providers/index.js";
 import { legacyToClipJob } from "./src/core/models.js";
 import { ProviderError } from "./src/core/contract.js";
 
-const registry = createDefaultRegistry();
-
 function corsFor(request, env) {
-  const list = (env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
+  const list = (env.ALLOWED_ORIGINS || "")
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
+
   const origin = request.headers.get("Origin") || "";
-  let allow = "*";
-  if (list.length) allow = list.includes(origin) ? origin : list[0];
+
+  // Fail closed when no allowlist is configured.
+  let allow = "";
+  if (list.length && list.includes(origin)) {
+    allow = origin;
+  }
+
   return {
-    "Access-Control-Allow-Origin": allow,
+    ...(allow ? { "Access-Control-Allow-Origin": allow } : {}),
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Vary": "Origin"
@@ -29,34 +34,120 @@ function corsFor(request, env) {
 export default {
   async fetch(request, env) {
     const CORS = corsFor(request, env);
-    const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { ...CORS, "Content-Type": "application/json" } });
-    if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
-    const url = new URL(request.url);
-    let provider;
-    try { provider = registry.resolve(); } catch (e) { return json({ error: e.message }, 500); }
 
-    if (url.pathname === "/api/health") {
-      return json({ ok: true, provider: provider.id, configured: provider.isConfigured(env), corsLocked: !!(env.ALLOWED_ORIGINS || "").trim() });
+    const json = (data, status = 200) =>
+      new Response(JSON.stringify(data), {
+        status,
+        headers: {
+          ...CORS,
+          "Content-Type": "application/json"
+        }
+      });
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: CORS });
     }
-    if (!provider.isConfigured(env)) return json({ error: `Backend is not configured. ${provider.configHint}` }, 503);
+
+    const url = new URL(request.url);
+
+    let registry;
+    try {
+      registry = createDefaultRegistry(env);
+    } catch (error) {
+      return json({
+        ok: false,
+        error: error.message,
+        code: "INVALID_PROVIDER_CONFIGURATION"
+      }, 500);
+    }
+
+    if (url.pathname === "/api/health" && request.method === "GET") {
+      const providers = await Promise.all(
+        registry.list().map(async provider => ({
+          id: provider.id,
+          label: provider.label,
+          cost: provider.cost,
+          dataFlow: provider.dataFlow,
+          configured: provider.isConfigured(env),
+          health: await provider.health(env)
+        }))
+      );
+
+      return json({
+        ok: true,
+        defaultProvider: registry.defaultId(),
+        providers,
+        corsLocked: !!(env.ALLOWED_ORIGINS || "").trim()
+      });
+    }
+
+    let provider;
+    try {
+      provider = registry.resolve();
+    } catch {
+      return json({
+        ok: false,
+        error: "No default provider is configured. Enable a provider and set DEFAULT_PROVIDER explicitly.",
+        code: "NO_DEFAULT_PROVIDER"
+      }, 503);
+    }
+
+    if (!provider.isConfigured(env)) {
+      return json({
+        ok: false,
+        error: `Provider is not configured. ${provider.configHint || ""}`,
+        code: "PROVIDER_NOT_CONFIGURED"
+      }, 503);
+    }
 
     try {
       if (url.pathname === "/api/clip-projects" && request.method === "POST") {
         const body = (await request.json().catch(() => ({}))) || {};
-        if (!body.videoUrl || !/^https:\/\//i.test(body.videoUrl)) return json({ error: "A valid HTTPS videoUrl is required." }, 400);
-        const r = await provider.submit(legacyToClipJob(body), env);
-        return json(r.raw, r.httpStatus);
+
+        if (
+          !body.videoUrl ||
+          !/^https:\/\//i.test(body.videoUrl)
+        ) {
+          return json({
+            error: "A valid HTTPS videoUrl is required."
+          }, 400);
+        }
+
+        const result = await provider.submit(
+          legacyToClipJob(body),
+          env
+        );
+
+        return json(result.raw, result.httpStatus);
       }
-      if (url.pathname === "/api/exportable-clips" && request.method === "GET") {
+
+      if (
+        url.pathname === "/api/exportable-clips" &&
+        request.method === "GET"
+      ) {
         const projectId = url.searchParams.get("projectId");
-        if (!projectId) return json({ error: "projectId is required." }, 400);
-        const r = await provider.results(projectId, env);
-        return json(r.raw, r.httpStatus);
+
+        if (!projectId) {
+          return json({ error: "projectId is required." }, 400);
+        }
+
+        const result = await provider.results(projectId, env);
+
+        return json(result.raw, result.httpStatus);
       }
+
       return json({ error: "Not found" }, 404);
-    } catch (e) {
-      const status = e instanceof ProviderError && e.httpStatus ? e.httpStatus : 502;
-      return json({ error: e.message || "Upstream request failed" }, status);
+
+    } catch (error) {
+      const status =
+        error instanceof ProviderError && error.httpStatus
+          ? error.httpStatus
+          : 502;
+
+      return json({
+        error: error.message || "Provider request failed",
+        code: error.code || "PROVIDER_ERROR"
+      }, status);
     }
   }
 };
