@@ -253,4 +253,65 @@ async function cfRefreshUrlClips(){
 if($('submitUrlClip')) $('submitUrlClip').addEventListener('click',cfSubmitUrlClip);
 if($('refreshUrlClips')) $('refreshUrlClips').addEventListener('click',cfRefreshUrlClips);
 
+// ClipForge native YouTube-to-clips workflow.
+// Uses the existing on-device Whisper and FFmpeg engines.
+let cfPendingYoutubeAnalysis = false;
+
+const cfOriginalSetVideo = setVideo;
+setVideo = function (f) {
+  cfOriginalSetVideo(f);
+
+  if (cfPendingYoutubeAnalysis && video) {
+    const activeVideo = video;
+
+    activeVideo.addEventListener("loadedmetadata", () => {
+      if (video !== activeVideo || !cfPendingYoutubeAnalysis) return;
+
+      cfPendingYoutubeAnalysis = false;
+
+      if (duration < 30) {
+        cfUrlStatus("Recording is shorter than 30 seconds. Choose a longer recording.");
+        return;
+      }
+
+      cfUrlStatus("Recording loaded. Starting AI highlight analysis...");
+      $("analyzeBtn").click();
+    }, { once: true });
+
+    activeVideo.addEventListener("error", () => {
+      cfPendingYoutubeAnalysis = false;
+      cfUrlStatus("Could not read this recording. Try an MP4 (H.264/AAC) file.");
+    }, { once: true });
+  }
+};
+
+// Hide the obsolete third-party provider configuration.
+const cfBackendField = $("cfApiBaseInput")?.closest(".field");
+if (cfBackendField) cfBackendField.hidden = true;
+if ($("refreshUrlClips")) $("refreshUrlClips").hidden = true;
+
+$("submitUrlClip").addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  const source = $("youtubeUrl").value.trim();
+
+  if (!parseYouTubeId(source)) {
+    cfUrlStatus("Paste a valid YouTube video or livestream URL first.");
+    return;
+  }
+
+  if (!$("urlClipRights").checked) {
+    cfUrlStatus("Confirm that you own the recording or have permission to edit it.");
+    return;
+  }
+
+  cfPendingYoutubeAnalysis = true;
+  cfUrlStatus("Choose the matching creator-authorised recording. AI analysis will start automatically.");
+  $("fileInput").click();
+}, true);
+
+cfUrlStatus("Paste a YouTube link, confirm permission, and tap Analyse YouTube source.");
+$("submitUrlClip").textContent = "✦ Analyse YouTube source";
+
 </script></body></html>
