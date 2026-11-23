@@ -58,8 +58,8 @@ main{max-width:1500px;margin:0 0 0 238px;padding:28px clamp(14px,2.5vw,38px) 65p
  .cf-nav{padding:12px}
 }
 </style></head>
-  <script>
-(function () {
+<script>
+document.addEventListener('DOMContentLoaded', function () {
   const sidebar = document.getElementById('cfSidebar');
   const toggle = document.getElementById('cfMenuToggle');
 
@@ -84,8 +84,8 @@ main{max-width:1500px;margin:0 0 0 238px;padding:28px clamp(14px,2.5vw,38px) 65p
       document.body.classList.remove('cf-menu-open');
     });
   });
-})();
-</script>
+});
+</script>  
 <body>
 <header><div class="brand"><div class="logo">▶</div>ClipForge <span class="tag">V6 · YOUTUBE CONNECT</span></div><span class="tag">LOCAL-FIRST · CAMPAIGN READY</span></header><div class="notice warning" style="margin:12px 0">URL clipping needs a configured backend. The YouTube preview is not the video file, and API credentials must never be placed in this public HTML.</div>
   <div id="dashboardTop"></div>
