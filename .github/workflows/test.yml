@@ -3,9 +3,11 @@ name: ClipForge Automated Tests
 on:
   push:
     branches:
+      - main
       - v6.5-native-engine
   pull_request:
     branches:
+      - main
       - v6.5-native-engine
   workflow_dispatch:
 
@@ -25,6 +27,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Install FFmpeg (for real export tests)
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
       - name: Run automated tests
         run: npm test
