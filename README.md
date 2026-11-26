@@ -1,42 +1,36 @@
-# ClipForge V6.4 (Phase 1) — URL-to-AI clipping integration
+# ClipForge V6.5: native clipping studio
 
-## V6.4 / Phase 1: provider architecture
-The Worker is no longer an OpusClip-only proxy. It is a provider-independent layer (`src/core/`) with OpusClip as an **optional** provider (`src/providers/opusclip.js`). ClipForge does not depend on OpusClip: the local Whisper/FFmpeg workflow never calls the Worker. Existing V6.2 routes and responses are unchanged. The frontend (`index.html`) is unchanged in this phase.
+ClipForge is a **static, local-first** web app. It turns long videos and stream recordings into short, captioned, campaign-compliant clips. Everything runs in the browser (Whisper speech recognition and FFmpeg.wasm). There is no server, no account, no clipping API and no API key.
 
-**Run the tests (Node 20+):** `npm test`
+## What it does
+- **Import:** upload any common video type (MP4, MOV, WebM, MKV, AVI, FLV, WMV, TS, 3GP, MPG…); drag and drop; direct media URLs; HLS (`.m3u8`) streams and live windows; record an authorised live stream by capturing a browser tab. Formats browsers cannot play get an automatic preview copy.
+- **Link previews:** YouTube, Twitch, Vimeo (embedded player) and Kick (link only). Platform pages are **preview only**. ClipForge never scrapes or downloads protected media. To clip a platform video, use the creator’s recording.
+- **AI analysis:** on-device Whisper transcription (English translation or original language), then viral-moment ranking from hook strength, emotion, pacing, audio energy and clean endings.
+- **Review, trim and caption:** score-ranked clips, trim editor, hook/title overlay, editable captions, caption size/position/case.
+- **Campaigns:** unlimited campaigns, each listed in the sidebar. Brief analysis, required/prohibited terms, hashtags, duration rule, platform, logo overlay and a per-clip compliance check.
+- **Export:** 480p, 720p or 1080p H.264/AAC MP4 in 9:16, 1:1 or 16:9, with captions burned in (optional `.srt`), single clip or ZIP of all compliant clips.
+- **Post:** direct YouTube upload (Shorts-ready) using your own Google OAuth Client ID; phone share sheet; download-and-open helpers for TikTok, Instagram and X.
 
-## What the V6.2 build added
-- A dedicated URL-to-AI clipping panel in the ClipForge page.
-- A Cloudflare Worker adapter that keeps the OpusClip API key server-side.
-- Project submission and clip-result retrieval through the provider API.
-- The existing local-file Whisper/FFmpeg workflow remains available.
+## Honest limits
+- TikTok, Instagram and X do not allow posting from a static site. Only YouTube is a true direct upload. A Google project that has not passed API verification uploads as **private**.
+- Browsers cannot read YouTube/Twitch/Kick video bytes. Those links are previews.
+- Live capture records what plays in a tab. Protected (DRM) streams record as black, and ClipForge does not circumvent protection.
+- Files above ~2 GB cannot be held by the in-browser FFmpeg. Speed depends on device memory; 1080p is slowest.
+- Caption burn-in needs a font file that the page downloads from a CDN at export time. If that fails, clips export without burned-in captions and the status message says so (use “Also download .srt”).
+- Rights checks are a workflow gate, not legal advice.
 
-## Important limitations
-- GitHub Pages hosts only the static frontend. It cannot run `worker.js`.
-- The Worker must be deployed separately (Cloudflare Workers).
-- You need an OpusClip API key. Official documentation says API access is on Pro (Beta), Max and Business plans; API projects have a 10-credit minimum. This is not a free ClipForge backend.
-- Do not paste the API key into `index.html`, GitHub, or chat.
-- The provider returns clip results; this initial adapter does not yet implement the provider's separate HD export endpoint. Use provider download/export links for final MP4s.
-- A public YouTube URL accepted by the provider is not proof that the user has permission to republish it. Keep the rights check and verify campaign terms.
-- YouTube preview is separate from video ingestion. Do not use unofficial downloaders or bypass DRM/access controls.
+## Run it
+It must be served over HTTP(S). Opening `index.html` from disk will not load the modules.
+```
+npx serve .          # or: python3 -m http.server 8080
+```
+## Deploy (GitHub Pages)
+Publish the repository root (`index.html` plus the `src/` folder) with Pages: **Settings → Pages → Deploy from a branch → `main` / root**. Both `index.html` and `src/native/*.js` must be deployed.
 
-## Deploy the frontend
-1. Upload `index.html` to the root of your existing public GitHub repository (replace the old file).
-2. Commit changes. GitHub Pages will redeploy.
+## YouTube connection and direct upload (optional)
+1. Google Cloud Console → enable **YouTube Data API v3**.
+2. Create an **OAuth client ID (Web application)** and add your site’s exact origin (for example `https://YOURNAME.github.io`) to authorised JavaScript origins.
+3. Paste the Client ID in **Connected channels**. Read-only access is requested to list your videos and broadcasts. The upload permission is requested only when you press **Upload to YouTube**.
 
-## Deploy the API Worker
-1. Create a Cloudflare account and install Wrangler on a computer with Node.js.
-2. In this folder run `npm create cloudflare@latest` or use the Wrangler CLI to initialise a Worker project, then place `worker.js`, `wrangler.toml` and the whole `src/` folder in it (the Worker now imports from `src/`; deploying `worker.js` alone will fail).
-3. Run `npx wrangler secret put OPUS_API_KEY` and paste your OpusClip API key into the terminal prompt.
-4. If the account's API requires an organisation ID for clip retrieval, set `OPUS_ORG_ID` with `npx wrangler secret put OPUS_ORG_ID`.
-5. Deploy with `npx wrangler deploy`.
-6. Lock the Worker to your site: in `wrangler.toml` uncomment `[vars]` and set `ALLOWED_ORIGINS` to your GitHub Pages origin (e.g. `https://YOURNAME.github.io`), then redeploy. Without this, anyone who finds the Worker URL can spend your OpusClip credits.
-7. Open ClipForge, paste `https://YOUR-WORKER.workers.dev/api` into the **backend address** box in the URL-to-AI panel and tap Save. It is stored in that browser (localStorage); no code edit is needed.
-
-## Test
-- Open `https://YOUR-WORKER.workers.dev/api/health`; it should return `{"ok":true,"provider":"opusclip","configured":true,"corsLocked":true}`. `corsLocked:false` means step 6 is not done yet.
-- In ClipForge paste a supported, rights-cleared URL, tick the rights confirmation and submit.
-- After processing, tap Refresh results.
-
-## Current state
-This is an integration scaffold, not a verified live connection. It has not been tested against a real OpusClip account because no API key or plan credentials were supplied. The official API reference is https://help.opus.pro/api-reference/overview and https://help.opus.pro/api-reference/quickstart.
+## Tests
+`npm test` (Node 20+; FFmpeg on the PATH enables the real export tests, otherwise they are skipped). CI runs on pushes and pull requests to `main` and `v6.5-native-engine`.

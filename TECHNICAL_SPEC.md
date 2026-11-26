@@ -1,67 +1,45 @@
-# ClipForge — TECHNICAL_SPEC.md
-Version: V6.4 (Phase 1 of 4 complete) · Updated: 2026-11-23
+# ClipForge: TECHNICAL_SPEC.md (V6.5, native engine)
 
-## 1. Principles (architect decisions)
-- Provider-independent adapter layer is the central integration point. **OpusClip is optional**, never required; no dependence on its API access, plan or credits.
-- Providers are selected by configuration, never hard-coded; more authorised providers can be added.
-- Long-term goal: ClipForge's own clipping engine. Ingestion, highlight detection, clip generation, editing and export stay modular.
-- Never silently switch to a provider with extra cost or privacy implications. Local engine must stay independent of OpusClip.
-- Do not claim local clipping works until the full pipeline is tested.
+## 1. Principles
+- ClipForge is an independent clipping platform. No third-party clipping provider, API key or backend is used or required.
+- Static hosting only. All media processing (Whisper, FFmpeg.wasm) runs on the user’s device.
+- Compliance by design: platform links are preview-only; clips come from creator-authorised media; rights gate before export/post.
 
-## 2. Repo layout
+## 2. Repository layout
 | Path | Role |
 |---|---|
-| `index.html` | Frontend (unchanged in Phase 1): local Whisper/FFmpeg pipeline, YouTube, campaign, rights, URL-to-AI panel |
-| `worker.js` | Worker entry. Legacy V6.2 routes → registry → provider |
-| `src/core/models.js` | ClipJob, CampaignProfile, JobRecord, ClipResult, fingerprinting, validation |
-| `src/core/contract.js` | Provider contract, `assertProvider`, `checkJobCompatibility`, `ProviderError` |
-| `src/core/registry.js` | Provider registry (`register/get/list/resolve/defaultId`) |
-| `src/core/security.js` | `validateSourceUrl` (SSRF layer 1) — **not yet wired in** |
-| `src/providers/opusclip.js` | Optional OpusClip provider (behaviour identical to V6.3) |
-| `src/providers/index.js` | `createDefaultRegistry()` — Phase 1: OpusClip only, default |
-| `tests/*.test.js`, `tests/fixtures/legacy_v63.js` | 61 tests (`npm test`, Node built-in runner, zero dependencies) |
+| `index.html` | Dashboard UI + app script (ES module). Sidebar, all panels, orchestration of engines |
+| `src/native/platforms.js` | Link classification (YouTube/Twitch/Vimeo/Kick/direct/HLS) and embed URLs |
+| `src/native/video-input.js` | File/URL validation, format handling, limits |
+| `src/native/hls.js` | HLS playlist parsing and authorised stream download (no encrypted streams) |
+| `src/native/highlights.js` | Viral-moment scoring and clip selection |
+| `src/native/captions.js` | Cue building, SRT, ASS (captions + hook overlay) |
+| `src/native/export-settings.js` | Quality presets, output sizes, FFmpeg argument builder |
+| `src/native/campaigns.js` | Multi-campaign store, brief parser, compliance checks |
+| `src/native/publish.js` | YouTube resumable upload, share-sheet and manual-post helpers |
+| `tests/` | Node test runner suites; `tests/helpers/fake-dom.js` boots the real page script against a strict DOM stand-in |
+| `.github/workflows/test.yml` | CI: `npm test` on push/PR to `main` and `v6.5-native-engine` |
 
-`src/core` has no platform dependencies (uses only `crypto.subtle`, `URL`, `TextEncoder`), so the same modules can later run in the browser for the `local` provider.
+## 3. Pipeline
+1. **Import** → `validateVideoFile` → `<video>` metadata; if undecodable or duration is not finite → FFmpeg preview proxy (MP4, ≤480p). Export always uses the original file.
+2. **Analyse** → FFmpeg extracts 16 kHz mono WAV → per-second loudness (`energyPerSecond`) → Whisper (tiny/base, translate or transcribe) → `findViralMoments`.
+3. **Score (0–100)**: hook, emotion, punchiness, pace, audio energy/peak, clean ending, opening-hook bonus. Windows are anchored on transcript segments; selection is greedy with a max-overlap rule and a minimum-score floor. Speech-free videos use loud-segment fallback only.
+4. **Edit** → trim (validated against campaign duration), hook text, per-chunk caption editing.
+5. **Export** → `buildExportArgs` (trim, scale/crop or pad, subtitles via libass with fonts dir, optional logo overlay, H.264 CRF/preset by quality, AAC). Exit codes are checked; failed caption rendering falls back to a clean export with a message.
+6. **Post** → YouTube resumable upload (`youtube.upload` scope requested on demand) or share/manual helpers.
 
-## 3. Provider contract
-```
-id, label, cost("free"|"paid"|"local"), dataFlow("local"|"third-party"), requiresCredentials, configHint?
-capabilities { sourceTypes, aspectRatios, clipDuration|null, maxDurationRanges,
-               features{customPrompt,genre,language,autoCuration},
-               campaign{durationRange,aspectRatio,captions,hooks,hashtags,overlays,prohibitedContent},
-               export{providerLinks,hdExport} }       // = what the ADAPTER implements
-isConfigured(env) · health(env,ctx) · submit(job,env,ctx) · results(providerJobId,env,ctx)
-```
-- **Availability** = `health()` (`available|unconfigured|error`). **Compatibility** = `checkJobCompatibility(provider, job)` → `{compatible, reasons[{code,message,severity}]}`; `blocking` = cannot process, `warning` = will be ignored/unenforced (e.g. campaign hooks on OpusClip). These are separate on purpose.
-- `cost` and `dataFlow` exist so Phase 2 fallback can refuse silent switches to costlier or less private providers.
-- Adapters must refuse jobs they can't honour (`ProviderError UNSUPPORTED_JOB`, HTTP 422) rather than silently degrade.
+## 4. Quality presets
+| Quality | 9:16 | 1:1 | 16:9 | CRF / preset |
+|---|---|---|---|---|
+| 480p | 480×854 | 480×480 | 854×480 | 26 / ultrafast |
+| 720p | 720×1280 | 720×720 | 1280×720 | 24 / ultrafast |
+| 1080p | 1080×1920 | 1080×1080 | 1920×1080 | 22 / veryfast |
 
-## 4. Data models (schemaVersion 1)
-- **ClipJob** `{source{type,url}, durations[[min,max]≤4], genre?, prompt?, language, aspectRatio(portrait|landscape|square), curation{auto}, campaign|null, idempotencyKey?}`
-- **CampaignProfile** (provider-independent) `{id,name,platform,durationRange,aspectRatio,captions{required,style},hooks[],hashtags[],overlays[{type,text,position}],prohibited{terms,topics},requiredTerms[],submission{requirements,deadline,url},license{basis,evidenceUrl,monetizationAllowed,allowedPlatforms,verified}}`
-- **JobRecord** `{id, job, provider{id,jobId}, providerHistory[], status, attempts, checkpoints[{name,at,data?}], error{code,message,retryable}|null, createdAt, updatedAt}`; immutable updates; legal transitions: pending→submitting→processing→completed; failed→pending (retry); submitting→pending (rollback); cancel from non-terminal. `switchProvider()` keeps all job data and logs the old provider.
-- **Duplicate guard:** `computeJobFingerprint(job, providerId)` (SHA-256 of normalised URL + options + provider).
-- **ClipResult** `{id,title,previewUrl,downloadUrl,startSec,endSec,durationSec,score}`.
-- Legacy V6.2 bodies map via `legacyToClipJob()`. A golden test proves the OpusClip request body is byte-identical to V6.3's.
+## 5. Navigation contract
+Every sidebar `<a class="cf-nav" href="#id">` targets a `<section id>`; links are unique and in page order; active state follows scroll (IntersectionObserver) and clicks. Campaign items are `<button data-campaign-id>` entries. One toggle (`#cfMenuToggle`) opens the off-canvas drawer below 850 px; backdrop, Escape and link clicks close it. Enforced by `tests/ui.test.js`.
 
-## 5. HTTP API (Worker)
-Unchanged: `GET /api/health`, `POST /api/clip-projects`, `GET /api/exportable-clips?projectId=`. Raw upstream payloads and statuses pass through. Unconfigured → 503 on every non-health route (as in V6.2). CORS locked via `ALLOWED_ORIGINS`.
-Planned (Phase 2): `GET /api/providers`, `POST /api/jobs`, `GET /api/jobs/:id`.
+## 6. Storage (browser only)
+`clipforge.campaigns.v2` (v1 migrates), `clipforge.rights.v2`, `clipforge.settings.v1`, `clipforge.ytclient`. OAuth tokens are kept in memory only.
 
-## 6. Security status
-- Credentials server-side only ✅ · CORS allowlist ✅ · request-body whitelist ✅
-- `validateSourceUrl` implemented + tested (HTTPS only, no credentials/ports/IP literals incl. decimal/hex/octal/IPv6, no internal names, optional allow/block lists) but **NOT enforced on routes yet** (would change V6.2 behaviour; wired in Phase 2).
-- Limitation: URL-text checks cannot see DNS resolution. Today the Worker never fetches user URLs (the provider does). Any ClipForge-side fetcher (local engine ingestion) must also block private/loopback/link-local addresses at connection time.
-- Rights/licence gating remains a UI gate (not legal verification).
-
-## 7. Roadmap
-1. ✅ **Phase 1** — contract, models, registry, OpusClip behind contract, tests.
-2. Phase 2 — config-based selection (`DEFAULT_PROVIDER`/`ENABLED_PROVIDERS`), `/api/providers`, `/api/jobs`, capability reasons in API, fallback rules (cost/privacy consent), job persistence + checkpoints + idempotent retry, wire SSRF validation, `mock` provider, graceful-degradation UI.
-3. Phase 3 — split `index.html` pipeline into modules (ingestion, highlight detection, generation, editing, export).
-4. Phase 4 — wrap local Whisper/FFmpeg pipeline as `local` provider; full pipeline testing before any "works" claim.
-
-## 8. Known limitations
-- OpusClip integration still unverified against a live account; field names assumed.
-- OpusClip adapter derives "processing/completed" from whether clips exist (V6.2 had no status endpoint).
-- Capability flags for OpusClip describe the adapter, not the vendor's full API.
-- No persistence, provider selection, fallback or new routes yet (Phase 2).
+## 7. Known limitations
+See README “Honest limits”. In-browser behaviour of FFmpeg.wasm, Whisper download, Google sign-in and YouTube upload is exercised by code review and unit tests with mocks; it needs a manual check on the deployed site.

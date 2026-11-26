@@ -1,7 +1,8 @@
 {
-  "name": "clipforge-api",
-  "version": "6.4.0",
+  "name": "clipforge",
+  "version": "6.5.0",
   "private": true,
   "type": "module",
+  "description": "ClipForge: local-first creator clipping studio (static site, on-device AI).",
   "scripts": { "test": "node --test tests/*.test.js" }
 }
