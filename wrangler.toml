@@ -1,7 +1,0 @@
-name = "clipforge-api"
-main = "worker.js"
-compatibility_date = "2026-11-23"
-
-# Uncomment and set to your site's origin(s) to stop others using your API credits:
-# [vars]
-# ALLOWED_ORIGINS = "https://YOURNAME.github.io"
